@@ -26,3 +26,7 @@ jwt:
   auth:
     converter:
       resource-id: preferred_username
+
+springdoc:
+  swagger-ui:
+    oauth2RedirectUrl: http://localhost:9081/swagger-ui/index.html
