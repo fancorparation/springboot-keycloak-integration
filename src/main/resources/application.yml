@@ -16,10 +16,8 @@ spring:
           keycloak:
             client-id: spring-app-client
             client-secret: vGAQHjL23Y0ItqRh3EOuax6mbJF4eEPD
-            authorization-grant-type: authorization_code
-            redirect-uri: "{baseUrl}/login/oauth2/code/keycloak"
-
-
+            authorization-grant-type: password  # yoki client_credentials
+            scope: openid
         provider:
           keycloak:
             issuer-uri: http://localhost:8080/realms/spring-app-realm

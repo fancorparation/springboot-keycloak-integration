@@ -1,4 +1,4 @@
-package uz.pdp.levelupspringbootmonolith.config;
+package fan.company.springbootkeycloakintegration.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package uz.pdp.levelupspringbootmonolith.controllers;
+package fan.company.springbootkeycloakintegration.controllers;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

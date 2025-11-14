@@ -1,4 +1,4 @@
-package uz.pdp.levelupspringbootmonolith.config;
+package fan.company.springbootkeycloakintegration.config;
 
 import io.micrometer.common.lang.NonNull;
 import org.springframework.beans.factory.annotation.Value;
