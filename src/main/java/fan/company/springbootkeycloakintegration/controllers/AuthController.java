@@ -2,18 +2,27 @@ package fan.company.springbootkeycloakintegration.controllers;
 
 import fan.company.springbootkeycloakintegration.payload.LoginRequest;
 import fan.company.springbootkeycloakintegration.payload.TokenResponse;
+import lombok.RequiredArgsConstructor;
+import org.keycloak.admin.client.Keycloak;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
+
+    private final Keycloak keycloak;
 
     @Value("${spring.security.oauth2.client.provider.keycloak.issuer-uri}")
     private String issuerUri;
@@ -49,4 +58,5 @@ public class AuthController {
                     .body(new TokenResponse("Invalid credentials or server error", null, null, 0));
         }
     }
+
 }

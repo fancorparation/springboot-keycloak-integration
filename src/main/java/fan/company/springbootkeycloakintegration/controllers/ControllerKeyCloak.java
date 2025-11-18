@@ -10,16 +10,28 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/")
 public class ControllerKeyCloak {
 
-    @PreAuthorize("hasRole('MAMUR')")
-    @GetMapping("/foradmin")
-    public String foradmin() {
-        return "Tizim administratori endpointga kirdi";
+    @PreAuthorize("hasRole('REALM_ADMIN_LEVEL_UP')")
+    @GetMapping("/realmAdmin")
+    public String realmAdmin() {
+        return "REALM_ADMIN";
+    }
+
+    @PreAuthorize("hasRole('CLIENT_ADMIN_LEVEL_UP')")
+    @GetMapping("/clientAdmin")
+    public String clientAdmin() {
+        return "CLIENT_ADMIN";
     }
 
 
-    @PreAuthorize("hasRole('FOYDALANUVCHI')")
-    @GetMapping("/foruser")
-    public String foruser() {
-        return "Tizim foydalanuvchisi endpointga kirdi";
+    @PreAuthorize("hasRole('REALM_USER_LEVEL_UP')")
+    @GetMapping("/realmUser")
+    public String realmUser() {
+        return "REALM_USER";
+    }
+
+    @PreAuthorize("hasRole('CLIENT_USER_LEVEL_UP')")
+    @GetMapping("/clientUser")
+    public String clientUser() {
+        return "CLIENT_USER";
     }
 }

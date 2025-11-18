@@ -13,60 +13,60 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Component
 public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
+    private final JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter =
+            new JwtGrantedAuthoritiesConverter();
 
-    private final JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-
-    @Value("${jwt.auth.converter.resource-id}")
-    private String username;
-
+    @Value("${jwt.auth.converter.resource-id:preferred_username}")
+    private String principalAttribute;
 
     @Override
     public AbstractAuthenticationToken convert(@NonNull Jwt jwt) {
 
+        Collection<GrantedAuthority> authorities = new HashSet<>(jwtGrantedAuthoritiesConverter.convert(jwt));
 
-        Collection<GrantedAuthority> authorities = Stream.concat(
-                jwtGrantedAuthoritiesConverter.convert(jwt).stream(),
-                extractResourceRoles(jwt).stream()
-        ).collect(Collectors.toSet());
-        return new JwtAuthenticationToken(jwt, authorities, getPrincipalClaimName(jwt));
+        authorities.addAll(extractResourceRoles(jwt));
+
+        return new JwtAuthenticationToken(jwt, authorities, getPrincipalName(jwt));
     }
 
-    private String getPrincipalClaimName(Jwt jwt) {
-        String claimName = JwtClaimNames.SUB;
-        if (username != null) {
-
-            claimName = username;
-        }
-        return jwt.getClaim(claimName);
+    private String getPrincipalName(Jwt jwt) {
+        return jwt.getClaimAsString(
+                principalAttribute != null ? principalAttribute : JwtClaimNames.SUB
+        );
     }
 
     private Collection<? extends GrantedAuthority> extractResourceRoles(Jwt jwt) {
 
-        Map<String, Object> resourceAccess;
-        Collection<String> resourceRoles;
+        Set<GrantedAuthority> authorities = new HashSet<>();
 
-        if (jwt.getClaim("resource_access") == null) {
-            return Set.of();
+        // resource_access
+        Map<String, Object> resourceAccess = jwt.getClaim("resource_access");
+        if (resourceAccess != null) {
+            Map<String, Object> client = (Map<String, Object>) resourceAccess.get("levelup-client");
+            if (client != null) {
+                Collection<String> clientRoles = (Collection<String>) client.get("roles");
+                if (clientRoles != null) {
+                    clientRoles.forEach(r -> authorities.add(new SimpleGrantedAuthority("ROLE_" + r)));
+                }
+            }
         }
-        resourceAccess = jwt.getClaim("resource_access");
-        if (resourceAccess.get("spring-app-client") == null) {
-            return Set.of();
+
+        // realm_access (null bo‘lsa xatolik chiqmasligi uchun)
+        Map<String, Object> realmAccess = jwt.getClaim("realm_access");
+        if (realmAccess != null) {
+            Collection<String> realmRoles = (Collection<String>) realmAccess.get("roles");
+            if (realmRoles != null) {
+                realmRoles.forEach(r -> authorities.add(new SimpleGrantedAuthority("ROLE_" + r)));
+            }
         }
-        Map<String, Object> resource = (Map<String, Object>) resourceAccess.get("spring-app-client");
 
-        resourceRoles = (Collection<String>) resource.get("roles");
-        return resourceRoles
-                .stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-                .collect(Collectors.toList());
-
+        return authorities;
     }
 }
